@@ -1,3 +1,9 @@
+#install
+sudo apt-get install linux-headers-$(uname -r)  
+sudo apt-get install build-essentials  
+sudo apt-get install linux-headers-generic 
+
+#登録
 sudo insmod test.ko
 sudo rmmod test.ko
 dmesg
