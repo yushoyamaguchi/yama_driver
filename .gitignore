@@ -7,3 +7,4 @@
 *.mod.c
 settings.json
 kernel_e1000e*.sh
+*.d
