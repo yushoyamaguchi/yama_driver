@@ -1,4 +1,4 @@
-CFILES = e1000e.c netdev.c
+CFILES =  netdev.c
 
 obj-m := yama_e1000e.o
 yama_e1000e-objs := $(CFILES:.c=.o)

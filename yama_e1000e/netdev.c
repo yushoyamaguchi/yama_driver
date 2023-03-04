@@ -15,14 +15,13 @@
 
 #include "include/pci_table.h"
 #include "include/e1000.h"
+#include "include/yama_e1000e.h"
+
 
 MODULE_LICENSE("GPL v2");
 
 char yama_e1000e_driver_name[] = "yama_e1000e";
 
-struct yama_e1000e_adaptor{
-
-};
 
 int yama_e1000e_netdev_open(struct net_device *dev){
 	return 0;
@@ -45,18 +44,30 @@ static const struct net_device_ops yama_e1000e_netdev_ops = {
 
 static int yama_e1000_probe(struct pci_dev *pdev, const struct pci_device_id *ent)
 {
+	printk("yama_e1000_probe start\n");
+	//irq = irq_of_parse_and_map(pdev->dev.of_node, 0);
 	struct net_device *netdev;
-	netdev = alloc_etherdev(sizeof(struct yama_e1000e_adaptor));
+	struct yama_e1000e_adapter *adapter;
+	netdev = alloc_etherdev(sizeof(struct net_device));
 	netdev->netdev_ops=&yama_e1000e_netdev_ops;
 	register_netdev(netdev);
+	adapter=netdev_priv(netdev);
     return 0;
+}
+
+static void yama_e1000_remove(struct pci_dev *pdev)
+{
+	struct net_device *netdev = pci_get_drvdata(pdev);
+	unregister_netdev(netdev);
+	free_netdev(netdev);
 }
 
 /* PCI Device API Driver */
 static struct pci_driver yama_e1000_driver = {
 	.name     = yama_e1000e_driver_name,
 	.id_table	  = yama_e1000_pci_tbl,
-	.probe    = yama_e1000_probe
+	.probe    = yama_e1000_probe,
+	.remove = yama_e1000_remove
 };
 
 
