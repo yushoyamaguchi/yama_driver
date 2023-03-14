@@ -1,3 +1,5 @@
+
+
 #include <linux/init.h>
 #include <linux/module.h>
 #include <linux/types.h>
@@ -21,6 +23,16 @@
 MODULE_LICENSE("GPL v2");
 
 char yama_e1000e_driver_name[] = "yama_e1000e";
+
+unsigned int yama_e1000e_reg_read(struct yama_e1000e_adapter *adapter, u_int16_t reg){
+	//return *(volatile uint32_t *)(adapter->io_base + reg);
+	// write/readを使う実装に変える(ioremap関数にそう書いてあった。)
+}
+
+void yama_e1000e_reg_write(struct yama_e1000e_adapter *adapter, u_int16_t reg, uint32_t val){
+	//*(volatile uint32_t *)(adapter->io_base + reg)=val;
+	// write/readを使う実装に変える(ioremap関数にそう書いてあった。)
+}
 
 
 int yama_e1000e_netdev_open(struct net_device *dev){
@@ -55,12 +67,14 @@ static int yama_e1000_probe(struct pci_dev *pdev, const struct pci_device_id *en
 	struct yama_e1000e_adapter *adapter;
 	netdev = alloc_etherdev(sizeof(struct net_device));
 	if(!netdev){
-		return netdev
+		return -ENOMEM;
 	}
 	netdev->netdev_ops=&yama_e1000e_netdev_ops;
 	adapter=netdev_priv(netdev);
 	adapter->netdev=netdev;
-	adapter->io_base=pci_resource_start(pdev);
+	uint32_t base_buff;
+	pci_read_config_dword(pdev,PCI_BASE_ADDRESS_0,&base_buff);
+	adapter->io_base=base_buff;
 	ret=register_netdev(netdev);
     return 0;
 err_irq:
@@ -112,3 +126,5 @@ static void __exit yama_e1000_exit_module(void)
 	pci_unregister_driver(&yama_e1000_driver);
 }
 module_exit(yama_e1000_exit_module);
+
+

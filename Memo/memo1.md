@@ -17,6 +17,8 @@ tblを登録して、pci_registerを登録した時点で、probe関数の引数
 pci_enable_deviceを呼び出す
 <br>
 mmioベースアドレス、pioベースアドレスとかを取得して、adapter構造体に格納する
+<br>
+mmioアドレスの場合は、pci_ioremap_barとかで仮想メモリ空間にマッピングしてから使う
 
 # 気づき
 Linuxは、初期化時にmmio領域を埋めるという処理を一つの関数にまとめず、意味的な処理で分けている。

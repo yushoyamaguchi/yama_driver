@@ -15,9 +15,20 @@
 #include <linux/mdio.h>
 #include <linux/mutex.h>
 #include <linux/pm_qos.h>
+#include <linux/kthread.h>
+#include <linux/sched.h>
+#include <linux/delay.h>
+#include <linux/module.h>
+#include <linux/kernel.h>
+#include <linux/init.h>
+#include <linux/pci.h>
 #include "hw.h"
 
 struct yama_e1000e_adapter {
     struct net_device *netdev;
-    unsigned long io_base;
+    struct pci_dev *pdev;
+    struct mutex lock;
+	struct work_struct irq_work;
+	struct work_struct tx_work;
+    unsigned int io_base;
 };
