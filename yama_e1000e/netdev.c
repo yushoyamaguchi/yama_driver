@@ -66,16 +66,16 @@ void dump_about_bar(uint32_t base,struct pci_dev *pdev){
 		{
 		case PCI_BASE_ADDRESS_MEM_TYPE_32:
 			bar_32=base&PCI_BASE_ADDRESS_MEM_MASK;
-			printk("MEM BASE 32BIT : %d\n",bar_32);
+			printk("MEM BASE 32BIT : 0x%x\n",bar_32);
 			break;
 		case PCI_BASE_ADDRESS_MEM_TYPE_1M:
 			bar_32=base&PCI_BASE_ADDRESS_MEM_MASK;
-			printk("MEM BASE 1M : %d\n",bar_32);
+			printk("MEM BASE 1M : 0x%x\n",bar_32);
 			break;	
 		case PCI_BASE_ADDRESS_MEM_TYPE_64:
 			pci_read_config_dword(pdev,PCI_BASE_ADDRESS_1,&bar_upper);
 			bar_64=(bar_upper<<32)+(base&PCI_BASE_ADDRESS_MEM_MASK);
-			printk("MEM BASE 64BIT : %lld\n",bar_64);
+			printk("MEM BASE 64BIT : 0x%x\n",bar_64);
 			break;
 
 		default:
