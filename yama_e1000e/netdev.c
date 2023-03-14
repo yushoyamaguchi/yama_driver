@@ -24,13 +24,13 @@ MODULE_LICENSE("GPL v2");
 
 char yama_e1000e_driver_name[] = "yama_e1000e";
 
-unsigned int yama_e1000e_reg_read(struct yama_e1000e_adapter *adapter, u_int16_t reg){
-	//return *(volatile uint32_t *)(adapter->io_base + reg);
+unsigned int yama_er32(struct yama_e1000e_adapter *adapter, u_int16_t reg){
+	return readl((volatile uint32_t *)(adapter->io_base + reg));
 	// write/readを使う実装に変える(ioremap関数にそう書いてあった。)
 }
 
-void yama_e1000e_reg_write(struct yama_e1000e_adapter *adapter, u_int16_t reg, uint32_t val){
-	//*(volatile uint32_t *)(adapter->io_base + reg)=val;
+void yama_ew32(struct yama_e1000e_adapter *adapter, u_int16_t reg, uint32_t val){
+	writel(val,(volatile uint32_t *)(adapter->io_base + reg));
 	// write/readを使う実装に変える(ioremap関数にそう書いてあった。)
 }
 
@@ -54,6 +54,36 @@ static const struct net_device_ops yama_e1000e_netdev_ops = {
 	.ndo_start_xmit = yama_e1000e_start_xmit,
 };
 
+void dump_about_bar(uint32_t base,struct pci_dev *pdev){
+	if(base&PCI_BASE_ADDRESS_SPACE){
+		printk("IO BASE : %d\n",base&PCI_BASE_ADDRESS_IO_MASK);
+	}
+	else{
+		uint32_t bar_32;
+		uint64_t bar_64;
+		uint32_t bar_upper;
+		switch (base&PCI_BASE_ADDRESS_MEM_TYPE_MASK)
+		{
+		case PCI_BASE_ADDRESS_MEM_TYPE_32:
+			bar_32=base&PCI_BASE_ADDRESS_MEM_MASK;
+			printk("MEM BASE 32BIT : %d\n",bar_32);
+			break;
+		case PCI_BASE_ADDRESS_MEM_TYPE_1M:
+			bar_32=base&PCI_BASE_ADDRESS_MEM_MASK;
+			printk("MEM BASE 1M : %d\n",bar_32);
+			break;	
+		case PCI_BASE_ADDRESS_MEM_TYPE_64:
+			pci_read_config_dword(pdev,PCI_BASE_ADDRESS_1,&bar_upper);
+			bar_64=(bar_upper<<32)+(base&PCI_BASE_ADDRESS_MEM_MASK);
+			printk("MEM BASE 64BIT : %lld\n",bar_64);
+			break;
+
+		default:
+			break;
+		}
+	}
+}
+
 static int yama_e1000_probe(struct pci_dev *pdev, const struct pci_device_id *ent)
 {
 	printk("yama_e1000_probe start\n");
@@ -74,6 +104,7 @@ static int yama_e1000_probe(struct pci_dev *pdev, const struct pci_device_id *en
 	adapter->netdev=netdev;
 	uint32_t base_buff;
 	pci_read_config_dword(pdev,PCI_BASE_ADDRESS_0,&base_buff);
+	dump_about_bar(base_buff,pdev);
 	adapter->io_base=base_buff;
 	ret=register_netdev(netdev);
     return 0;
