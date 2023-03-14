@@ -56,7 +56,7 @@ static const struct net_device_ops yama_e1000e_netdev_ops = {
 
 void dump_about_bar(uint32_t base,struct pci_dev *pdev){
 	if(base&PCI_BASE_ADDRESS_SPACE){
-		printk("IO BASE : %d\n",base&PCI_BASE_ADDRESS_IO_MASK);
+		printk("IO BASE : 0x%x\n",base&PCI_BASE_ADDRESS_IO_MASK);
 	}
 	else{
 		uint32_t bar_32;
@@ -75,7 +75,7 @@ void dump_about_bar(uint32_t base,struct pci_dev *pdev){
 		case PCI_BASE_ADDRESS_MEM_TYPE_64:
 			pci_read_config_dword(pdev,PCI_BASE_ADDRESS_1,&bar_upper);
 			bar_64=(bar_upper<<32)+(base&PCI_BASE_ADDRESS_MEM_MASK);
-			printk("MEM BASE 64BIT : 0x%x\n",bar_64);
+			printk("MEM BASE 64BIT : 0x%llx\n",bar_64);
 			break;
 
 		default:
