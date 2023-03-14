@@ -38,7 +38,7 @@ static netdev_tx_t yama_e1000e_start_xmit(struct sk_buff *skb, struct net_device
 
 static const struct net_device_ops yama_e1000e_netdev_ops = {
 	.ndo_open = yama_e1000e_netdev_open,
-	.ndo_stop = yama_e1000e_netdev_close, //扱えるハードウェアのリスト
+	.ndo_stop = yama_e1000e_netdev_close,
 	.ndo_start_xmit = yama_e1000e_start_xmit,
 };
 
@@ -65,7 +65,7 @@ static void yama_e1000_remove(struct pci_dev *pdev)
 /* PCI Device API Driver */
 static struct pci_driver yama_e1000_driver = {
 	.name     = yama_e1000e_driver_name,
-	.id_table	  = yama_e1000_pci_tbl,
+	.id_table	  = yama_e1000_pci_tbl, //扱えるハードウェアのリスト
 	.probe    = yama_e1000_probe,
 	.remove = yama_e1000_remove
 };
