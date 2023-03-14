@@ -45,14 +45,31 @@ static const struct net_device_ops yama_e1000e_netdev_ops = {
 static int yama_e1000_probe(struct pci_dev *pdev, const struct pci_device_id *ent)
 {
 	printk("yama_e1000_probe start\n");
+	int err,ret;
+	err=pci_enable_device(pdev);
+	if(err){
+		return err;
+	}
 	//irq = irq_of_parse_and_map(pdev->dev.of_node, 0);
 	struct net_device *netdev;
 	struct yama_e1000e_adapter *adapter;
 	netdev = alloc_etherdev(sizeof(struct net_device));
+	if(!netdev){
+		return netdev
+	}
 	netdev->netdev_ops=&yama_e1000e_netdev_ops;
-	register_netdev(netdev);
 	adapter=netdev_priv(netdev);
+	adapter->netdev=netdev;
+	adapter->io_base=pci_resource_start(pdev);
+	ret=register_netdev(netdev);
     return 0;
+err_irq:
+	//free_irq(adapter->spi->irq, adapter);
+err_free_buf:
+	//dma_free_coherent(&spi->dev, DMA_BUFFER_SIZE, adapter->dma_buf, adapter->dma_handle);
+err_free_netdev:
+	//free_netdev(netdev);
+	return ret;
 }
 
 static void yama_e1000_remove(struct pci_dev *pdev)

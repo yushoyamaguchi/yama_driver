@@ -19,4 +19,5 @@
 
 struct yama_e1000e_adapter {
     struct net_device *netdev;
+    unsigned long io_base;
 };

@@ -11,3 +11,12 @@ adapter構造体にbarを保持する変数を作る。
 <br>
 tblを登録して、pci_registerを登録した時点で、probe関数の引数のpci_dev構造体に該当デバイスのデータが入るようになってる。
 その情報を引数に適切な関数を呼ぶことでbarも取得できる。
+
+# ToDo
+## probe
+pci_enable_deviceを呼び出す
+<br>
+mmioベースアドレス、pioベースアドレスとかを取得して、adapter構造体に格納する
+
+# 気づき
+Linuxは、初期化時にmmio領域を埋めるという処理を一つの関数にまとめず、意味的な処理で分けている。
