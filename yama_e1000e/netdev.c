@@ -94,8 +94,8 @@ int yama_e1000e_netdev_open(struct net_device *ndev){
 		printk("yama_e1000e_opened\n");
 	}
 
-	netif_start_queue(ndev);
-	netif_carrier_on(ndev);
+	//netif_start_queue(ndev);
+	//netif_carrier_on(ndev);
 	return 0;
 }
 
@@ -205,10 +205,6 @@ static int yama_e1000_probe(struct pci_dev *pdev, const struct pci_device_id *en
 		return -ENOMEM;
 	}
 	netdev->netdev_ops=&yama_e1000e_netdev_ops;
-	netdev->irq = pdev->irq;
-    netdev->base_addr = pci_resource_start(pdev, 0);
-    netdev->mtu = 1500; // or any other default value
-    netdev->priv_flags = 0;
 	adapter=netdev_priv(netdev);
 	adapter->netdev=netdev;
 	adapter->pdev=pdev;
@@ -232,6 +228,7 @@ static int yama_e1000_probe(struct pci_dev *pdev, const struct pci_device_id *en
 		printk("err register_netdev\n");
 		goto err_free_netdev;
 	}
+	printk("probe end\n");
     return 0;
 err_irq:
 	//free_irq(adapter->spi->irq, adapter);
