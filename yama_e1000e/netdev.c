@@ -38,16 +38,60 @@ void yama_ew32(struct yama_e1000e_adapter *adapter, u_int16_t reg, uint32_t val)
 }
 
 void rx_init(struct net_device *ndev){
-
+	struct yama_e1000e_adapter *adapter=netdev_priv(ndev);
+	//NICには物理アドレスを渡す
+	yama_ew32(adapter,E1000_RDBAL, (uint32_t)(adapter->rx_dma & 0xffffffff));
+	yama_ew32(adapter,E1000_RDBAH, (uint32_t)(adapter->tx_dma >> 32));
+	// rx descriptor length
+	yama_ew32(adapter,E1000_RDLEN, (uint32_t)(TX_RING_SIZE * sizeof(struct rx_desc)));
+	//head&tail
+	yama_ew32(adapter,E1000_RDH, 0);
+	yama_ew32(adapter,E1000_RDT, RX_RING_SIZE-1);
+	uint32_t rctl=(E1000_RCTL_BAM |
+                    0); 
+	yama_ew32(adapter,E1000_RCTL, 0);
 }
 
 void tx_init(struct net_device *ndev){
-	
+	struct yama_e1000e_adapter *adapter=netdev_priv(ndev);
+	//NICには物理アドレスを渡す
+	yama_ew32(adapter,E1000_TDBAL, (uint32_t)(adapter->tx_dma & 0xffffffff));
+	yama_ew32(adapter,E1000_TDBAH, (uint32_t)(adapter->tx_dma >> 32));
+	// tx descriptor length
+	yama_ew32(adapter,E1000_TDLEN, (uint32_t)(TX_RING_SIZE * sizeof(struct tx_desc)));
+	//head&tail
+	yama_ew32(adapter,E1000_TDH, 0);
+	yama_ew32(adapter,E1000_TDT, 0);
+	uint32_t tctl=(E1000_TCTL_PSP |
+                    E1000_TCTL_CT_HERE |
+                    E1000_TCTL_COLD_HERE|
+                    0); 
+	yama_ew32(adapter,E1000_TCTL, 0);				
 }
 
 int yama_e1000e_netdev_open(struct net_device *ndev){
+	struct yama_e1000e_adapter *adapter=netdev_priv(ndev);
 	rx_init(ndev);
 	tx_init(ndev);
+	//general setting
+    uint32_t ctl_val=E1000_CTL_FD | E1000_CTL_ASDE | E1000_CTL_SLU | E1000_CTL_FRCDPLX | E1000_CTL_SPEED | E1000_CTL_FRCSPD;
+    yama_ew32(adapter,E1000_CTL,ctl_val);
+    //割り込み
+    uint32_t ims_val=E1000_IMS_LSC | E1000_IMS_RXDMT0 | E1000_IMS_RXSEQ | E1000_IMS_RXO | E1000_IMS_RXT0;
+    yama_ew32(adapter, E1000_IMS, ims_val);
+    //rx_enabale
+    uint32_t current_rctl=yama_er32(adapter,E1000_RCTL);
+    uint32_t rctl=(E1000_RCTL_EN |
+                    current_rctl);
+    yama_ew32(adapter,E1000_RCTL,rctl);
+    //tx_enable
+    uint32_t current_tctl=yama_er32(adapter,E1000_TCTL);
+    uint32_t tctl=(E1000_TCTL_EN |
+                    current_tctl);
+    yama_ew32(adapter,E1000_TCTL,tctl);
+	if(yama_er32(adapter,E1000_TCTL)&E1000_TCTL_EN){
+		kprintf("yama_e1000e_opened\n");
+	}
 
 	netif_start_queue(ndev);
 	netif_carrier_on(ndev);
@@ -110,6 +154,40 @@ void dump_about_bar(uint32_t base,struct pci_dev *pdev){
 	}
 }
 
+static int alloc_tx_ring(struct net_device *ndev){
+	struct yama_e1000e_adapter *adapter=netdev_priv(ndev);
+	struct tx_desc *tx_ring=adapter->tx_ring;
+	tx_ring=dma_alloc_coherent(&(adapter->pdev->dev),RX_RING_SIZE*sizeof(struct tx_desc),&(adapter->tx_dma),GFP_KERNEL);
+	if(!tx_ring){
+		return -ENOMEM;
+	}
+	memset(tx_ring,0,TX_RING_SIZE*sizeof(struct tx_desc));
+	return 0;
+}
+
+static int alloc_rx_ring(struct net_device *ndev){
+	struct yama_e1000e_adapter *adapter=netdev_priv(ndev);
+	struct rx_desc *rx_ring=adapter->rx_ring;
+	rx_ring=dma_alloc_coherent(&(adapter->pdev->dev),RX_RING_SIZE*sizeof(struct rx_desc),&(adapter->rx_dma),GFP_KERNEL);
+	if(!rx_ring){
+		return -ENOMEM;
+	}
+	memset(rx_ring,0,RX_RING_SIZE*sizeof(struct rx_desc));
+	for (int i = 0; i < RX_RING_SIZE; i++) {
+        dummy[i] = dma_alloc_coherent(&(adapter->pdev->dev), sizeof(uint64_t), &(rx_ring[i].addr), GFP_KERNEL);
+        if (!dummy[i]) {
+            // Free previously allocated memory in case of failure
+            while (i > 0) {
+                i--;
+                dma_free_coherent(&(adapter->pdev->dev), sizeof(uint64_t), dummy[i], rx_ring[i].addr);
+            }
+            dma_free_coherent(&(adapter->pdev->dev), RX_RING_SIZE * sizeof(struct rx_desc), rx_ring, adapter->rx_dma);//この処理は1回だけ
+            return -ENOMEM;
+        }
+    }
+	return 0;
+}
+
 static int yama_e1000_probe(struct pci_dev *pdev, const struct pci_device_id *ent)
 {
 	printk("yama_e1000_probe start\n");
@@ -128,11 +206,20 @@ static int yama_e1000_probe(struct pci_dev *pdev, const struct pci_device_id *en
 	netdev->netdev_ops=&yama_e1000e_netdev_ops;
 	adapter=netdev_priv(netdev);
 	adapter->netdev=netdev;
+	adapter->pdev=pdev;
 	uint32_t base_buff;
 	pci_read_config_dword(pdev,PCI_BASE_ADDRESS_0,&base_buff);
 	dump_about_bar(base_buff,pdev);
 	adapter->mmio_base=pci_iomap(pdev,0,pci_resource_len(pdev,0));
 	dump_about_bar(adapter->mmio_base,pdev);
+	err=alloc_tx_ring(netdev);
+	if(err){
+		return err;
+	}
+	err=alloc_rx_ring(netdev);
+	if(err){
+		return err;
+	}
 	ret=register_netdev(netdev);
     return 0;
 err_irq:
