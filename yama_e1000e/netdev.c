@@ -205,6 +205,10 @@ static int yama_e1000_probe(struct pci_dev *pdev, const struct pci_device_id *en
 		return -ENOMEM;
 	}
 	netdev->netdev_ops=&yama_e1000e_netdev_ops;
+	netdev->irq = pdev->irq;
+    netdev->base_addr = pci_resource_start(pdev, 0);
+    netdev->mtu = 1500; // or any other default value
+    netdev->priv_flags = 0;
 	adapter=netdev_priv(netdev);
 	adapter->netdev=netdev;
 	adapter->pdev=pdev;
