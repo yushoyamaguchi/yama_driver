@@ -111,7 +111,7 @@ static int yama_e1000_probe(struct pci_dev *pdev, const struct pci_device_id *en
 	//irq = irq_of_parse_and_map(pdev->dev.of_node, 0);
 	struct net_device *netdev;
 	struct yama_e1000e_adapter *adapter;
-	netdev = alloc_etherdev(sizeof(struct net_device));
+	netdev = alloc_etherdev(sizeof(struct yama_e1000e_adapter));
 	if(!netdev){
 		return -ENOMEM;
 	}
