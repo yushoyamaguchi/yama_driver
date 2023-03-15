@@ -30,5 +30,5 @@ struct yama_e1000e_adapter {
     struct mutex lock;
 	struct work_struct irq_work;
 	struct work_struct tx_work;
-    unsigned int io_base;
+    unsigned int mmio_base;
 };
