@@ -70,6 +70,7 @@ void tx_init(struct net_device *ndev){
 }
 
 int yama_e1000e_netdev_open(struct net_device *ndev){
+	printk("yama_e1000_open start\n");
 	struct yama_e1000e_adapter *adapter=netdev_priv(ndev);
 	rx_init(ndev);
 	tx_init(ndev);
@@ -214,20 +215,26 @@ static int yama_e1000_probe(struct pci_dev *pdev, const struct pci_device_id *en
 	dump_about_bar(adapter->mmio_base,pdev);
 	err=alloc_tx_ring(netdev);
 	if(err){
-		return err;
+		printk("err tx_ring\n");
+		goto err_free_netdev;
 	}
 	err=alloc_rx_ring(netdev);
 	if(err){
-		return err;
+		printk("err rx_ring\n");
+		goto err_free_netdev;
 	}
 	ret=register_netdev(netdev);
+	if(ret){
+		printk("err register_netdev\n");
+		goto err_free_netdev;
+	}
     return 0;
 err_irq:
 	//free_irq(adapter->spi->irq, adapter);
 err_free_buf:
 	//dma_free_coherent(&spi->dev, DMA_BUFFER_SIZE, adapter->dma_buf, adapter->dma_handle);
 err_free_netdev:
-	//free_netdev(netdev);
+	free_netdev(netdev);
 	return ret;
 }
 
