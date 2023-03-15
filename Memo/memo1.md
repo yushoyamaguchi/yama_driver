@@ -22,3 +22,6 @@ mmioアドレスの場合は、pci_ioremap_barとかで仮想メモリ空間に�
 
 # 気づき
 Linuxは、初期化時にmmio領域を埋めるという処理を一つの関数にまとめず、意味的な処理で分けている。
+
+# 状況0315
+ip linkでlinkは見えるが、macアドレスが振られておらず、```ip link set eth0 up``` しても、statusがupにならない。

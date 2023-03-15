@@ -24,6 +24,11 @@ MODULE_LICENSE("GPL v2");
 
 char yama_e1000e_driver_name[] = "yama_e1000e";
 
+static struct sockaddr default_mac_addr = {
+	.sa_family = 0,
+	.sa_data = {0xaa, 0xbb, 0xcc, 0xdd, 0xee, 0xff}
+};
+
 unsigned int yama_er32(struct yama_e1000e_adapter *adapter, u_int16_t reg){
 	return readl((volatile uint32_t *)(adapter->io_base + reg));
 	// write/readを使う実装に変える(ioremap関数にそう書いてあった。)
@@ -35,23 +40,34 @@ void yama_ew32(struct yama_e1000e_adapter *adapter, u_int16_t reg, uint32_t val)
 }
 
 
-int yama_e1000e_netdev_open(struct net_device *dev){
+int yama_e1000e_netdev_open(struct net_device *ndev){
 	return 0;
 }
 
-int yama_e1000e_netdev_close(struct net_device *dev){
+int yama_e1000e_netdev_close(struct net_device *ndev){
 	return 0;
 }
+
 
 
 static netdev_tx_t yama_e1000e_start_xmit(struct sk_buff *skb, struct net_device *dev){
 	return NETDEV_TX_OK;
 }
 
+static int yama_e1000e_set_mac_addr(struct net_device *ndev, void *p){
+	struct sockaddr *addr=p;
+	if(!is_valid_ether_addr(addr->sa_data)){
+		return -EADDRNOTAVAIL;
+	}
+	eth_hw_addr_set(ndev,addr->sa_data);
+	return 0;
+}
+
 static const struct net_device_ops yama_e1000e_netdev_ops = {
 	.ndo_open = yama_e1000e_netdev_open,
 	.ndo_stop = yama_e1000e_netdev_close,
 	.ndo_start_xmit = yama_e1000e_start_xmit,
+	.ndo_set_mac_address=yama_e1000e_set_mac_addr
 };
 
 void dump_about_bar(uint32_t base,struct pci_dev *pdev){
