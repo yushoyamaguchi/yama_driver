@@ -19,9 +19,14 @@ pci_enable_deviceを呼び出す
 mmioベースアドレス、pioベースアドレスとかを取得して、adapter構造体に格納する
 <br>
 mmioアドレスの場合は、pci_ioremap_barとかで仮想メモリ空間にマッピングしたもの使う
+<br>
+rx_init/tx_init
 
 ## statusがupにならない問題
 調査する。tx実装してからでも良い。
+<br>
+- macアドレス割り当てるコマンドは効くか
+- ip link set XX up のときのログを見る
 
 ## tx
 最初はschduleとかは考えなくて良い
