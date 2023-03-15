@@ -72,7 +72,7 @@ void tx_init(struct net_device *ndev){
 int yama_e1000e_netdev_open(struct net_device *ndev){
 	printk("yama_e1000_open start\n");
 	struct yama_e1000e_adapter *adapter=netdev_priv(ndev);
-	rx_init(ndev);
+	/*rx_init(ndev);
 	tx_init(ndev);
 	//general setting
     uint32_t ctl_val=E1000_CTL_FD | E1000_CTL_ASDE | E1000_CTL_SLU | E1000_CTL_FRCDPLX | E1000_CTL_SPEED | E1000_CTL_FRCSPD;
@@ -94,8 +94,8 @@ int yama_e1000e_netdev_open(struct net_device *ndev){
 		printk("yama_e1000e_opened\n");
 	}
 
-	//netif_start_queue(ndev);
-	//netif_carrier_on(ndev);
+	netif_start_queue(ndev);
+	netif_carrier_on(ndev);*/
 	return 0;
 }
 
