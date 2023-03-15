@@ -90,7 +90,7 @@ int yama_e1000e_netdev_open(struct net_device *ndev){
                     current_tctl);
     yama_ew32(adapter,E1000_TCTL,tctl);
 	if(yama_er32(adapter,E1000_TCTL)&E1000_TCTL_EN){
-		kprintf("yama_e1000e_opened\n");
+		printk("yama_e1000e_opened\n");
 	}
 
 	netif_start_queue(ndev);
