@@ -21,12 +21,19 @@ mmioベースアドレス、pioベースアドレスとかを取得して、adap
 mmioアドレスの場合は、pci_ioremap_barとかで仮想メモリ空間にマッピングしたもの使う
 <br>
 rx_init/tx_init
+<br>
+rx/txのリングバッファはdma_alloc_coherentで用意する。
 
 ## statusがupにならない問題
 調査する。tx実装してからでも良い。
 <br>
 - macアドレス割り当てるコマンドは効くか
 - ip link set XX up のときのログを見る
+
+### やること
+open関数の実装
+- netif_start_queue
+- netif_carrier_on
 
 ## tx
 最初はschduleとかは考えなくて良い

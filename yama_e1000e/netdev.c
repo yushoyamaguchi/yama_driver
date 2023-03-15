@@ -31,16 +31,26 @@ static struct sockaddr default_mac_addr = {
 
 unsigned int yama_er32(struct yama_e1000e_adapter *adapter, u_int16_t reg){
 	return readl((volatile uint32_t *)(adapter->mmio_base + reg));
-	// write/readを使う実装に変える(ioremap関数にそう書いてあった。)
 }
 
 void yama_ew32(struct yama_e1000e_adapter *adapter, u_int16_t reg, uint32_t val){
 	writel(val,(volatile uint32_t *)(adapter->mmio_base + reg));
-	// write/readを使う実装に変える(ioremap関数にそう書いてあった。)
 }
 
+void rx_init(struct net_device *ndev){
+
+}
+
+void tx_init(struct net_device *ndev){
+	
+}
 
 int yama_e1000e_netdev_open(struct net_device *ndev){
+	rx_init(ndev);
+	tx_init(ndev);
+
+	netif_start_queue(ndev);
+	netif_carrier_on(ndev);
 	return 0;
 }
 
@@ -121,7 +131,8 @@ static int yama_e1000_probe(struct pci_dev *pdev, const struct pci_device_id *en
 	uint32_t base_buff;
 	pci_read_config_dword(pdev,PCI_BASE_ADDRESS_0,&base_buff);
 	dump_about_bar(base_buff,pdev);
-	adapter->mmio_base=base_buff;
+	adapter->mmio_base=pci_iomap(pdev,0,pci_resource_len(pdev,0));
+	dump_about_bar(adapter->mmio_base,pdev);
 	ret=register_netdev(netdev);
     return 0;
 err_irq:
