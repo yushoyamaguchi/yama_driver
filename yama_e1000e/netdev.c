@@ -72,6 +72,8 @@ void tx_init(struct net_device *ndev){
 int yama_e1000e_netdev_open(struct net_device *ndev){
 	printk("yama_e1000_open start\n");
 	struct yama_e1000e_adapter *adapter=netdev_priv(ndev);
+	uint32_t ctl_val=E1000_CTL_FD | E1000_CTL_ASDE | E1000_CTL_SLU | E1000_CTL_FRCDPLX | E1000_CTL_SPEED | E1000_CTL_FRCSPD;
+    yama_ew32(adapter,E1000_CTL,ctl_val);
 	/*rx_init(ndev);
 	tx_init(ndev);
 	//general setting
@@ -213,8 +215,6 @@ static int yama_e1000_probe(struct pci_dev *pdev, const struct pci_device_id *en
 	dump_about_bar(base_buff,pdev);
 	adapter->mmio_base=pci_iomap(pdev,0,pci_resource_len(pdev,0));
 	dump_about_bar(adapter->mmio_base,pdev);
-	base_buff=pci_resource_start(pdev,0);
-	dump_about_bar(base_buff,pdev);
 	err=alloc_tx_ring(netdev);
 	if(err){
 		printk("err tx_ring\n");
