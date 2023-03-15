@@ -138,6 +138,7 @@ static void yama_e1000_remove(struct pci_dev *pdev)
 	struct net_device *netdev = pci_get_drvdata(pdev);
 	unregister_netdev(netdev);
 	free_netdev(netdev);
+	pci_disable_device(pdev);
 }
 
 /* PCI Device API Driver */
@@ -153,7 +154,7 @@ static struct pci_driver yama_e1000_driver = {
  * e1000_init_module - Driver Registration Routine
  *
  * e1000_init_module is the first routine called when the driver is
- * loaded. All it does is register with the PCI subsystem.
+ * loaded. All it does is register with the PCI subsystem. 
  **/
 static int __init yama_e1000_init_module(void)
 {
