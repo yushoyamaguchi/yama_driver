@@ -213,10 +213,10 @@ static int yama_e1000_probe(struct pci_dev *pdev, const struct pci_device_id *en
 	uint32_t base_buff;
 	pci_read_config_dword(pdev,PCI_BASE_ADDRESS_0,&base_buff);
 	dump_about_bar(base_buff,pdev);
-	adapter->mmio_base=pci_iomap(pdev,0,pci_resource_len(pdev,0));
+	//adapter->mmio_base=pci_iomap(pdev,0,pci_resource_len(pdev,0));
+	//dump_about_bar(adapter->mmio_base,pdev);
+	adapter->mmio_base=pci_ioremap_bar(pdev,0);
 	dump_about_bar(adapter->mmio_base,pdev);
-	base_buff=pci_ioremap_bar(pdev,0);
-	dump_about_bar(base_buff,pdev);
 	err=alloc_tx_ring(netdev);
 	if(err){
 		printk("err tx_ring\n");
