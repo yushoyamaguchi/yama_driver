@@ -103,6 +103,10 @@ int yama_e1000e_netdev_close(struct net_device *ndev){
 	return 0;
 }
 
+static irqreturn_t yama_e1000e_irq_handler(int irq, void *dev){
+	return IRQ_HANDLED;
+}
+
 
 
 static netdev_tx_t yama_e1000e_start_xmit(struct sk_buff *skb, struct net_device *dev){
@@ -250,12 +254,15 @@ static int yama_e1000_probe(struct pci_dev *pdev, const struct pci_device_id *en
 		printk("err register_netdev\n");
 		goto err_free_netdev;
 	}
+	ret=request_irq(pdev->irq,yama_e1000e_irq_handler,0,yama_e1000e_driver_name,adapter);
+	if(ret<0){
+		goto err_irq;
+	}
+	
 	printk("probe end\n");
     return 0;
 err_irq:
-	//free_irq(adapter->spi->irq, adapter);
-err_free_buf:
-	//dma_free_coherent(&spi->dev, DMA_BUFFER_SIZE, adapter->dma_buf, adapter->dma_handle);
+	free_irq(pdev->irq, adapter);
 err_free_netdev:
 	free_netdev(netdev);
 	return ret;
