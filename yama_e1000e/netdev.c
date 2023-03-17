@@ -212,7 +212,6 @@ static int yama_e1000_probe(struct pci_dev *pdev, const struct pci_device_id *en
 	adapter->netdev=netdev;
 	adapter->pdev=pdev;
 	uint32_t base_buff;
-	uint32_t base_buff2;
 	uint16_t did;
 	pci_read_config_word(pdev,2,&did);
 	printk("DeviceID=%x\n",did);
@@ -221,20 +220,20 @@ static int yama_e1000_probe(struct pci_dev *pdev, const struct pci_device_id *en
 	dump_about_bar(base_buff,pdev,"read_config");
 	base_buff=pci_resource_start(pdev,0);
 	dump_about_bar(base_buff,pdev,"pci_resource_start");
-	uint32_t base_len=pci_resource_len(pdev,0);
-	base_buff2=ioremap(base_buff,base_len);
-	dump_about_bar(base_buff2,pdev,"ioremap");
-
-	adapter->mmio_base=pci_iomap(pdev,0,pci_resource_len(pdev,0));
+	base_buff=pci_resource_len(pdev,0);
+	dump_about_bar(base_buff,pdev,"pci_resource_len");
+	/*adapter->mmio_base=pci_iomap(pdev,0,pci_resource_len(pdev,0));
 	if(!adapter->mmio_base){
-		printk("map_err;");
+		printk("iomap_err;");
 	}
-	dump_about_bar(adapter->mmio_base,pdev,"pci_iomap");
-	adapter->mmio_base=pci_iomap(pdev,0,pci_resource_len(pdev,0));
-	dump_about_bar(adapter->mmio_base,pdev,"pci_iomap2");
+	dump_about_bar(adapter->mmio_base,pdev,"pci_iomap");*/
+	adapter->mmio_base=pci_ioremap_bar(pdev,0);
+	if(!adapter->mmio_base){
+		printk("ioremap_bar_err;");
+	}
+	dump_about_bar(adapter->mmio_base,pdev,"pci_ioremap_bar");
 
 
-	adapter->mmio_base=base_buff2;
 	err=alloc_tx_ring(netdev);
 	if(err){
 		printk("err tx_ring\n");
