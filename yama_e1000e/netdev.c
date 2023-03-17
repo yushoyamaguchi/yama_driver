@@ -24,7 +24,7 @@ MODULE_LICENSE("GPL v2");
 
 char yama_e1000e_driver_name[] = "yama_e1000e";
 
-static struct sockaddr default_mac_addr = {
+struct sockaddr default_mac_addr = {
 	.sa_family = 0,
 	.sa_data = {0xaa, 0xbb, 0xcc, 0xdd, 0xee, 0xff}
 };
@@ -232,6 +232,7 @@ static int yama_e1000_probe(struct pci_dev *pdev, const struct pci_device_id *en
 	dump_about_bar(adapter->mmio_base,pdev,"pci_ioremap_bar");
 
 	eth_hw_addr_set(netdev,default_mac_addr.sa_data);
+	default_mac_addr.sa_data[0]++;
 
 
 	err=alloc_tx_ring(netdev);
