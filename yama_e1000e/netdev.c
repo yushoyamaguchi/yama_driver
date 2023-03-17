@@ -226,6 +226,9 @@ static int yama_e1000_probe(struct pci_dev *pdev, const struct pci_device_id *en
 	dump_about_bar(base_buff2,pdev,"ioremap");
 
 	adapter->mmio_base=pci_iomap(pdev,0,pci_resource_len(pdev,0));
+	if(!adapter->mmio_base){
+		printk("map_err;");
+	}
 	dump_about_bar(adapter->mmio_base,pdev,"pci_iomap");
 	adapter->mmio_base=pci_iomap(pdev,0,pci_resource_len(pdev,0));
 	dump_about_bar(adapter->mmio_base,pdev,"pci_iomap2");
