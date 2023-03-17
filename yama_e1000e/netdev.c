@@ -231,6 +231,8 @@ static int yama_e1000_probe(struct pci_dev *pdev, const struct pci_device_id *en
 	}
 	dump_about_bar(adapter->mmio_base,pdev,"pci_ioremap_bar");
 
+	eth_hw_addr_set(netdev,default_mac_addr.sa_data);
+
 
 	err=alloc_tx_ring(netdev);
 	if(err){
