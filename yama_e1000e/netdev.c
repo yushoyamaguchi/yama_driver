@@ -254,10 +254,10 @@ static int yama_e1000_probe(struct pci_dev *pdev, const struct pci_device_id *en
 		printk("err register_netdev\n");
 		goto err_free_netdev;
 	}
-	ret=request_irq(pdev->irq,yama_e1000e_irq_handler,0,yama_e1000e_driver_name,adapter);
+	/*ret=request_irq(pdev->irq,yama_e1000e_irq_handler,0,yama_e1000e_driver_name,adapter);
 	if(ret<0){
 		goto err_irq;
-	}
+	}*/
 	
 	printk("probe end\n");
     return 0;

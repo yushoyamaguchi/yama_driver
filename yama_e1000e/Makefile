@@ -3,7 +3,7 @@ CFILES =  netdev.c
 obj-m := yama_e1000e.o
 yama_e1000e-objs := $(CFILES:.c=.o)
 
-ccflags-y += -std=gnu99 -Wall -Wno-declaration-after-statement
+ccflags-y += -std=gnu99 -Wall -Wno-declaration-after-statement -g
 
 all:
 	make -C /lib/modules/$(shell uname -r)/build M=$(shell pwd) modules
