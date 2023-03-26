@@ -8,4 +8,4 @@ settings.json
 kernel_e1000e*.sh
 *.d
 mod*.sh
-.ko
+*.ko
