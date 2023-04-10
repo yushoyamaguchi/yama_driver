@@ -122,11 +122,20 @@ static int yama_e1000e_set_mac_addr(struct net_device *ndev, void *p){
 	return 0;
 }
 
+struct net_device_stats *yama_e1000e_get_stats(struct net_device *ndev)
+{
+	struct yama_e1000e_adapter *adapter=netdev_priv(ndev);
+	return &(adapter->stats);
+}
+
+
+
 static const struct net_device_ops yama_e1000e_netdev_ops = {
 	.ndo_open = yama_e1000e_netdev_open,
 	.ndo_stop = yama_e1000e_netdev_close,
 	.ndo_start_xmit = yama_e1000e_start_xmit,
-	.ndo_set_mac_address=yama_e1000e_set_mac_addr
+	.ndo_set_mac_address = yama_e1000e_set_mac_addr,
+	.ndo_get_stats = yama_e1000e_get_stats,
 };
 
 void dump_about_bar(uint32_t base,struct pci_dev *pdev, char *s){

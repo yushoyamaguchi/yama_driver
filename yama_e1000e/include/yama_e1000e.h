@@ -32,6 +32,7 @@ void *dummy[RX_RING_SIZE];
 
 struct yama_e1000e_adapter {
     struct net_device *netdev;
+    struct net_device_stats stats;
     struct pci_dev *pdev;
     struct mutex lock;
 	struct work_struct irq_work;
