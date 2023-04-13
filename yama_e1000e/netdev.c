@@ -93,6 +93,7 @@ int yama_e1000e_netdev_open(struct net_device *ndev){
 	if(yama_er32(adapter,E1000_TCTL)&E1000_TCTL_EN){
 		printk("yama_e1000e_opened\n");
 	}
+	ndev->operstate=IF_OPER_UP;
 
 	netif_start_queue(ndev);
 	netif_carrier_on(ndev);
