@@ -111,6 +111,7 @@ static irqreturn_t yama_e1000e_irq_handler(int irq, void *dev){
 
 
 static netdev_tx_t yama_e1000e_start_xmit(struct sk_buff *skb, struct net_device *dev){
+	printk("yama_e1000_start_xmit\n");
 	return NETDEV_TX_OK;
 }
 
