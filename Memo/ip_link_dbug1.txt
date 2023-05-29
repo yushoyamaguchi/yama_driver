@@ -1,0 +1,22 @@
+do_iplink
+ipaddr_list_link
+ipaddr_list_flush_or_save
+
+
+気になるところ
+ip_link_list ここでlinfoにデータが入るようになっている？
+print_linkinfo ここで表示をしてる
+
+print_string で表示してる
+fflushでmacアドレス表示
+
+
+
+RTM_GETLINKという種類のnetlinkを送りRTM_NEWLINKという種類のメッセージがカーネルから返ってくる
+
+IFLA_OPERSTATEを見たら、エラーであるとわかった
+upなのは6
+unkonwnなのは0
+
+
+iplink.cのiplink_parse関数
